@@ -1,0 +1,11 @@
+{
+  "name": "mits-robotics",
+  "version": "1.0.0",
+  "description": "MITS generated project for Robotics Club",
+  "private": true,
+  "scripts": {
+    "db:migrate": "cd database && npx prisma migrate dev",
+    "db:seed": "cd database && npx prisma db seed",
+    "db:studio": "cd database && npx prisma studio"
+  }
+}
