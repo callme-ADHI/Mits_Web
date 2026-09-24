@@ -4,6 +4,10 @@
   "description": "MITS generated project for Robotics Club",
   "private": true,
   "scripts": {
+    "dev:client": "npm --prefix client run dev",
+    "dev:admin": "npm --prefix admin run dev",
+    "build:client": "npm --prefix client run build",
+    "build:admin": "npm --prefix admin run build",
     "db:migrate": "cd database && npx prisma migrate dev",
     "db:seed": "cd database && npx prisma db seed",
     "db:studio": "cd database && npx prisma studio"
