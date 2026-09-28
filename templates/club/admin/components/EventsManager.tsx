@@ -226,7 +226,7 @@ export default function EventsManager({ initialEvents }: { initialEvents: EventI
                   required
                   value={form.title}
                   onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                  placeholder="e.g. Autonomous Robotics Workshop"
+                  placeholder="e.g. Annual Workshop 2026"
                   className="w-full px-3 py-2 border border-slate-300 rounded text-sm text-slate-900 focus:outline-none focus:ring-1 focus:ring-red-500"
                 />
               </div>

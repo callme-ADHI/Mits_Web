@@ -12,7 +12,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body className="bg-slate-50 text-slate-900 min-h-screen">
-        <AdminNav orgName={org?.name ?? 'Robotics Club'} />
+        <AdminNav orgName={org?.name ?? 'Club Admin'} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
       </body>
     </html>

@@ -212,7 +212,7 @@ export default function AchievementsManager({
                   required
                   value={form.title}
                   onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
-                  placeholder="e.g. 1st Place - National Robotics Challenge 2026"
+                  placeholder="e.g. 1st Place - National Challenge 2026"
                   className="w-full px-3 py-2 border border-slate-300 rounded text-sm text-slate-900 focus:outline-none focus:ring-1 focus:ring-red-500"
                 />
               </div>
