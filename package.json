@@ -1,0 +1,10 @@
+{
+  "name": "mits-web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "verify": "bash scripts/verify-all.sh",
+    "check:schema": "bash scripts/check-schema-sync.sh",
+    "check:template": "bash scripts/check-template-sync.sh"
+  }
+}

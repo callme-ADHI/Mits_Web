@@ -15,6 +15,13 @@ usage() {
   exit 1
 }
 
+copy_dir() {
+  local src="$1"
+  local dst="$2"
+  mkdir -p "$dst"
+  (cd "$src" && tar --exclude='node_modules' --exclude='.next' --exclude='.env*' --exclude='tsconfig.tsbuildinfo' --exclude='next-env.d.ts' -cf - .) | (cd "$dst" && tar -xf -)
+}
+
 if [ $# -ne 1 ]; then
   usage
 fi
@@ -28,11 +35,7 @@ elif [ "$ACTION" = "--from-robotics" ]; then
   for sub in client admin; do
     for dir in app components lib public; do
       if [ -d "$ROBOTICS_DIR/$sub/$dir" ]; then
-        mkdir -p "$TEMPLATES_DIR/$sub/$dir"
-        rsync -av --delete \
-          --exclude 'node_modules' --exclude '.next' --exclude '.env*' \
-          --exclude 'tsconfig.tsbuildinfo' --exclude 'next-env.d.ts' \
-          "$ROBOTICS_DIR/$sub/$dir/" "$TEMPLATES_DIR/$sub/$dir/"
+        copy_dir "$ROBOTICS_DIR/$sub/$dir" "$TEMPLATES_DIR/$sub/$dir"
       fi
     done
     for cfg in postcss.config.mjs tailwind.config.ts tsconfig.json; do
@@ -57,11 +60,7 @@ elif [ "$ACTION" = "--to-robotics" ]; then
   for sub in client admin; do
     for dir in app components lib public; do
       if [ -d "$TEMPLATES_DIR/$sub/$dir" ]; then
-        mkdir -p "$ROBOTICS_DIR/$sub/$dir"
-        rsync -av --delete \
-          --exclude 'node_modules' --exclude '.next' --exclude '.env*' \
-          --exclude 'tsconfig.tsbuildinfo' --exclude 'next-env.d.ts' \
-          "$TEMPLATES_DIR/$sub/$dir/" "$ROBOTICS_DIR/$sub/$dir/"
+        copy_dir "$TEMPLATES_DIR/$sub/$dir" "$ROBOTICS_DIR/$sub/$dir"
       fi
     done
     for cfg in postcss.config.mjs tailwind.config.ts tsconfig.json; do
