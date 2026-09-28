@@ -32,10 +32,15 @@ model Organization {
   isActive            Boolean  @default(true)
   createdAt           DateTime @default(now())
 
-  users        User[]
-  events       Event[]
-  achievements Achievement[]
-  activityLogs ActivityLog[]
+  logoData            Bytes?
+  logoMime            String?
+  logoUpdatedAt       DateTime?
+
+  users           User[]
+  events          Event[]
+  achievements    Achievement[]
+  activityLogs    ActivityLog[]
+  contactMessages ContactMessage[]
 }
 
 model User {
@@ -63,6 +68,8 @@ model Event {
   imageUrl       String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
 }
 
 model Achievement {
@@ -74,6 +81,8 @@ model Achievement {
   achievementDate DateTime
   imageUrl        String?
   createdAt       DateTime     @default(now())
+
+  @@index([organizationId])
 }
 
 model ActivityLog {
@@ -85,6 +94,21 @@ model ActivityLog {
   action         String
   details        String?
   createdAt      DateTime     @default(now())
+
+  @@index([organizationId, createdAt])
+}
+
+model ContactMessage {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  name           String
+  email          String
+  message        String
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  @@index([organizationId, createdAt])
 }
 
 model SuperAdmin {
