@@ -10,26 +10,29 @@ export async function createOrganizationRecord(opts: {
   secondaryColor: string
   adminEmail: string
 }) {
-  const org = await prisma.organization.create({
-    data: {
-      name: opts.name,
-      slug: opts.slug,
-      type: opts.type,
-      primaryColor: opts.primaryColor,
-      secondaryColor: opts.secondaryColor,
-    },
-  })
-
   const tempPassword = randomBytes(6).toString('hex')
   const passwordHash = await bcrypt.hash(tempPassword, 10)
+  const normalizedEmail = opts.adminEmail.trim().toLowerCase()
 
-  await prisma.user.create({
-    data: {
-      name: `${opts.name} Admin`,
-      email: opts.adminEmail.trim().toLowerCase(),
-      passwordHash,
-      organizationId: org.id,
-    },
+  const org = await prisma.$transaction(async (tx) => {
+    const created = await tx.organization.create({
+      data: {
+        name: opts.name,
+        slug: opts.slug,
+        type: opts.type,
+        primaryColor: opts.primaryColor,
+        secondaryColor: opts.secondaryColor,
+      },
+    })
+    await tx.user.create({
+      data: {
+        name: `${opts.name} Admin`,
+        email: normalizedEmail,
+        passwordHash,
+        organizationId: created.id,
+      },
+    })
+    return created
   })
 
   return { organizationId: org.id, tempPassword }
