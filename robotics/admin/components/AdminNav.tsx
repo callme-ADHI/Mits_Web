@@ -8,11 +8,12 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/events', label: 'Events' },
   { href: '/achievements', label: 'Achievements' },
+  { href: '/messages', label: 'Messages' },
   { href: '/about-contact', label: 'About & Contact' },
   { href: '/branding', label: 'Branding' },
 ]
 
-export default function AdminNav({ orgName = 'Robotics Club' }: { orgName?: string }) {
+export default function AdminNav({ orgName = 'Club' }: { orgName?: string }) {
   const pathname = usePathname()
   const router = useRouter()
   const [loggingOut, setLoggingOut] = useState(false)

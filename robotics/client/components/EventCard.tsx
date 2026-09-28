@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { fadeUp, imageReveal } from '@/lib/animations'
+import { KenBurnsImage } from '@/components/KenBurnsImage'
 
 export interface EventData {
   id: string
@@ -38,25 +39,17 @@ export default function EventCard({ event, featured = false, showShadow = false 
           alignItems: 'center',
         }}
       >
-        {/* Image with clip-path wipe reveal */}
+        {/* Image with clip-path wipe reveal and Ken Burns */}
         {event.imageUrl && (
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={imageReveal}
+          <div
             style={{
               overflow: 'hidden',
               borderRadius: '4px',
               aspectRatio: '16/10',
             }}
           >
-            <img
-              src={event.imageUrl}
-              alt={event.title}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            />
-          </motion.div>
+            <KenBurnsImage src={event.imageUrl} alt={event.title} />
+          </div>
         )}
 
         {/* Text */}
@@ -119,18 +112,8 @@ export default function EventCard({ event, featured = false, showShadow = false 
       }}
     >
       {event.imageUrl && (
-        <div style={{ aspectRatio: '16/9', overflow: 'hidden' }}>
-          <img
-            src={event.imageUrl}
-            alt={event.title}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              display: 'block',
-              transition: 'transform 300ms',
-            }}
-          />
+        <div style={{ aspectRatio: '16/9' }}>
+          <KenBurnsImage src={event.imageUrl} alt={event.title} />
         </div>
       )}
       <div style={{ padding: '1.5rem' }}>

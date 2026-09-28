@@ -5,6 +5,8 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import FloatingContactButton from '@/components/FloatingContactButton'
+import { SmoothScroll } from '@/components/SmoothScroll'
+import { ScrollProgressBar } from '@/components/ScrollProgressBar'
 import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
@@ -36,6 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     `--color-tint: ${tint}`,
     `--color-hairline: #E7E2E1`,
     `--color-on-red: ${onPrimary}`,
+    `--footer-h: 0px`,
   ].join('; ')
 
   return (
@@ -45,8 +48,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <style>{`:root { ${cssVars} }`}</style>
       </head>
       <body>
+        <SmoothScroll />
+        <ScrollProgressBar />
         <Navbar orgName={org?.name ?? 'Club Website'} />
-        {children}
+        {/* Content wrapper with background and relative z-10 for footer reveal */}
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 10,
+            background: 'var(--color-paper)',
+            marginBottom: 'var(--footer-h)',
+          }}
+        >
+          {children}
+        </div>
         <Footer
           orgName={org?.name ?? 'Club Website'}
           contactEmail={org?.contactEmail ?? null}
