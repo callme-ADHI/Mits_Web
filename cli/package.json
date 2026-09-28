@@ -1,0 +1,27 @@
+{
+  "name": "mits",
+  "version": "1.0.0",
+  "description": "MITS Web — CLI for generating and managing club/department websites",
+  "bin": {
+    "mits": "./bin/mits.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "dev": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcrypt": "^5.1.1"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/node": "^22.7.5",
+    "prisma": "^5.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  },
+  "prisma": {
+    "schema": "../database/schema.prisma"
+  }
+}
