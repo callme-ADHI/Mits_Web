@@ -1,5 +1,5 @@
-import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
+import { ORG_ID } from '@/lib/env'
 import SectionBand from '@/components/SectionBand'
 import Button from '@/components/Button'
 import StatCounter from '@/components/StatCounter'
@@ -11,11 +11,11 @@ export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
   const org = await prisma.organization.findUnique({
-    where: { id: process.env.ORGANIZATION_ID },
+    where: { id: ORG_ID },
   })
 
   const upcomingEvents = await prisma.event.findMany({
-    where: { organizationId: process.env.ORGANIZATION_ID, status: 'upcoming' },
+    where: { organizationId: ORG_ID, status: 'upcoming' },
     orderBy: { eventDate: 'asc' },
     take: 3,
   })
@@ -23,7 +23,7 @@ export default async function HomePage() {
   const featuredEvent = upcomingEvents[0]
 
   const recentAchievements = await prisma.achievement.findMany({
-    where: { organizationId: process.env.ORGANIZATION_ID },
+    where: { organizationId: ORG_ID },
     orderBy: { achievementDate: 'desc' },
     take: 3,
   })
@@ -39,7 +39,7 @@ export default async function HomePage() {
     <main>
       {/* ── HERO ──────────────────────────────────────────────── */}
       <SectionBand tone="paper" style={{ paddingTop: '6rem', paddingBottom: '6rem' }}>
-        <HomeHero orgName={org?.name ?? 'Robotics Club'} description={org?.description} />
+        <HomeHero orgName={org?.name ?? 'Club Website'} description={org?.description} />
       </SectionBand>
 
       {/* ── STATS ─────────────────────────────────────────────── */}
@@ -85,7 +85,7 @@ export default async function HomePage() {
               maxWidth: 'none',
             }}
           >
-            WHAT'S NEXT
+            WHAT&apos;S NEXT
           </p>
           <h2
             style={{
@@ -158,7 +158,7 @@ export default async function HomePage() {
             Want to join or collaborate?
           </h2>
           <p style={{ fontSize: '1rem', marginBottom: '2rem', maxWidth: 'none' }}>
-            Whether you're a student who wants to build robots or an organisation with a project idea, we'd love to hear from you.
+            Whether you&apos;re a student who wants to build robots or an organisation with a project idea, we&apos;d love to hear from you.
           </p>
           <Button variant="primary" as="a" href="/contact">
             Get in touch

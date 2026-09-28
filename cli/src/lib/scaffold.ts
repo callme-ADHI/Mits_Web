@@ -14,7 +14,7 @@ export async function scaffoldProject(opts: {
     throw new Error(`Template directory not found at: ${templateDir}`)
   }
 
-  // Copy template -> targetDir (exclude node_modules, .next, .env)
+  // Copy template -> targetDir (exclude node_modules, .next, .env, tsbuildinfo)
   await fsPromises.cp(templateDir, opts.targetDir, {
     recursive: true,
     filter: (src) => {
@@ -22,6 +22,7 @@ export async function scaffoldProject(opts: {
       if (rel.match(/(^|[/\\])node_modules([/\\]|$)/)) return false
       if (rel.match(/(^|[/\\])\.next([/\\]|$)/)) return false
       if (rel.match(/(^|[/\\])\.env.*([/\\]|$)/)) return false
+      if (rel.endsWith('.tsbuildinfo')) return false
       return true
     },
   })
@@ -46,10 +47,17 @@ export async function scaffoldProject(opts: {
     description: `MITS generated project for ${slug}`,
     private: true,
     scripts: {
+      "dev": "concurrently \"npm --prefix client run dev\" \"npm --prefix admin run dev\"",
       "dev:client": "npm --prefix client run dev",
       "dev:admin": "npm --prefix admin run dev",
+      "build": "npm --prefix client run build && npm --prefix admin run build",
       "build:client": "npm --prefix client run build",
-      "build:admin": "npm --prefix admin run build"
+      "build:admin": "npm --prefix admin run build",
+      "typecheck": "npm --prefix client run typecheck && npm --prefix admin run typecheck",
+      "lint": "npm --prefix client run lint && npm --prefix admin run lint"
+    },
+    devDependencies: {
+      "concurrently": "^9.1.2"
     }
   }
   await fsPromises.writeFile(

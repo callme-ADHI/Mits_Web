@@ -1,45 +1,40 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { logActivity } from '@/lib/activityLog'
-import { getSessionUserId } from '@/lib/auth'
-
-const ORG_ID = process.env.ORGANIZATION_ID!
+import { requireSession } from '@/lib/session'
+import { ORG_ID } from '@/lib/env'
+import { readJson, validationError, unauthorized, handleDbError } from '@/lib/http'
+import { organizationUpdateSchema } from '@/lib/validation'
 
 export async function GET() {
-  const org = await prisma.organization.findUnique({
-    where: { id: ORG_ID },
-  })
-  return NextResponse.json(org)
+  try {
+    const org = await prisma.organization.findUnique({
+      where: { id: ORG_ID },
+    })
+    return NextResponse.json(org)
+  } catch (err) {
+    return handleDbError(err)
+  }
 }
 
 export async function PUT(req: Request) {
-  const userId = await getSessionUserId()
-  const body = await req.json()
-  const {
-    name,
-    description,
-    contactEmail,
-    showFacultyContact,
-    facultyContactEmail,
-    primaryColor,
-    secondaryColor,
-    logoUrl,
-  } = body
+  const session = await requireSession()
+  if (!session) return unauthorized()
 
-  const org = await prisma.organization.update({
-    where: { id: ORG_ID },
-    data: {
-      ...(name !== undefined ? { name } : {}),
-      ...(description !== undefined ? { description } : {}),
-      ...(contactEmail !== undefined ? { contactEmail } : {}),
-      ...(showFacultyContact !== undefined ? { showFacultyContact } : {}),
-      ...(facultyContactEmail !== undefined ? { facultyContactEmail } : {}),
-      ...(primaryColor !== undefined ? { primaryColor } : {}),
-      ...(secondaryColor !== undefined ? { secondaryColor } : {}),
-      ...(logoUrl !== undefined ? { logoUrl } : {}),
-    },
-  })
+  const body = await readJson(req)
+  if (!body.ok) return body.response
 
-  await logActivity(ORG_ID, userId, 'organization.updated')
-  return NextResponse.json(org)
+  const parsed = organizationUpdateSchema.safeParse(body.data)
+  if (!parsed.success) return validationError(parsed.error)
+
+  try {
+    const org = await prisma.organization.update({
+      where: { id: ORG_ID },
+      data: parsed.data,
+    })
+    await logActivity(ORG_ID, session.userId, 'organization.updated')
+    return NextResponse.json(org)
+  } catch (err) {
+    return handleDbError(err)
+  }
 }

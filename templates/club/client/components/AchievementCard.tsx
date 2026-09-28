@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { fadeUp } from '@/lib/animations'
+import { KenBurnsImage } from '@/components/KenBurnsImage'
 
 export interface AchievementData {
   id: string
@@ -37,12 +38,8 @@ export default function AchievementCard({ achievement }: AchievementCardProps) {
       }}
     >
       {achievement.imageUrl && (
-        <div style={{ aspectRatio: '16/9', overflow: 'hidden', flexShrink: 0 }}>
-          <img
-            src={achievement.imageUrl}
-            alt={achievement.title}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-          />
+        <div style={{ aspectRatio: '16/9', flexShrink: 0 }}>
+          <KenBurnsImage src={achievement.imageUrl} alt={achievement.title} />
         </div>
       )}
       <div style={{ padding: '1.5rem', flex: 1 }}>

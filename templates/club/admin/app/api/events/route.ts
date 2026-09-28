@@ -1,34 +1,47 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { logActivity } from '@/lib/activityLog'
-import { getSessionUserId } from '@/lib/auth'
-
-const ORG_ID = process.env.ORGANIZATION_ID!
+import { requireSession } from '@/lib/session'
+import { ORG_ID } from '@/lib/env'
+import { readJson, validationError, unauthorized, handleDbError } from '@/lib/http'
+import { eventCreateSchema } from '@/lib/validation'
 
 export async function GET() {
-  const events = await prisma.event.findMany({
-    where: { organizationId: ORG_ID },
-    orderBy: { eventDate: 'asc' },
-  })
-  return NextResponse.json(events)
+  try {
+    const events = await prisma.event.findMany({
+      where: { organizationId: ORG_ID },
+      orderBy: { eventDate: 'asc' },
+    })
+    return NextResponse.json(events)
+  } catch (err) {
+    return handleDbError(err)
+  }
 }
 
 export async function POST(req: Request) {
-  const userId = await getSessionUserId()
-  const body = await req.json()
-  const { title, description, eventDate, status, imageUrl } = body
+  const session = await requireSession()
+  if (!session) return unauthorized()
 
-  const event = await prisma.event.create({
-    data: {
-      organizationId: ORG_ID,
-      title,
-      description,
-      eventDate: new Date(eventDate),
-      status: status || 'upcoming',
-      imageUrl: imageUrl || null,
-    },
-  })
+  const body = await readJson(req)
+  if (!body.ok) return body.response
 
-  await logActivity(ORG_ID, userId, 'event.created', title)
-  return NextResponse.json(event, { status: 201 })
+  const parsed = eventCreateSchema.safeParse(body.data)
+  if (!parsed.success) return validationError(parsed.error)
+
+  try {
+    const event = await prisma.event.create({
+      data: {
+        organizationId: ORG_ID,
+        title: parsed.data.title,
+        description: parsed.data.description ?? null,
+        eventDate: parsed.data.eventDate,
+        status: parsed.data.status ?? 'upcoming',
+        imageUrl: parsed.data.imageUrl ?? null,
+      },
+    })
+    await logActivity(ORG_ID, session.userId, 'event.created', event.title)
+    return NextResponse.json(event, { status: 201 })
+  } catch (err) {
+    return handleDbError(err)
+  }
 }

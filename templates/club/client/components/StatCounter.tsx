@@ -14,14 +14,18 @@ function easeOut(t: number): number {
 }
 
 export default function StatCounter({ value, label, suffix = '', isFirst = false }: StatCounterProps) {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return value
+    }
+    return 0
+  })
   const [started, setStarted] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reducedMotion) {
-      setCount(value)
       return
     }
 
@@ -35,20 +39,24 @@ export default function StatCounter({ value, label, suffix = '', isFirst = false
     )
     if (ref.current) observer.observe(ref.current)
     return () => observer.disconnect()
-  }, [started, value])
+  }, [started])
 
   useEffect(() => {
     if (!started) return
     const duration = 1400
     const startTime = performance.now()
 
+    let frameId: number
     const tick = (now: number) => {
       const elapsed = now - startTime
       const progress = Math.min(elapsed / duration, 1)
       setCount(Math.round(easeOut(progress) * value))
-      if (progress < 1) requestAnimationFrame(tick)
+      if (progress < 1) {
+        frameId = requestAnimationFrame(tick)
+      }
     }
-    requestAnimationFrame(tick)
+    frameId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frameId)
   }, [started, value])
 
   return (

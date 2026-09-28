@@ -2,6 +2,7 @@
 
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import Link from 'next/link'
+import { MagneticButton } from '@/components/MagneticButton'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary'
@@ -39,7 +40,7 @@ export default function Button({
   const variants: Record<string, React.CSSProperties> = {
     primary: {
       background: 'var(--color-red)',
-      color: '#fff',
+      color: 'var(--color-on-red, #ffffff)',
       borderColor: 'var(--color-red)',
     },
     secondary: {
@@ -81,6 +82,19 @@ export default function Button({
       >
         {children}
       </Link>
+    )
+  }
+
+  if (variant === 'primary') {
+    return (
+      <MagneticButton
+        style={merged}
+        onMouseEnter={handleEnter}
+        onMouseLeave={handleLeave}
+        {...rest}
+      >
+        {children}
+      </MagneticButton>
     )
   }
 

@@ -1,12 +1,18 @@
 import { prisma } from '@/lib/prisma'
+import { ORG_ID } from '@/lib/env'
 import SectionBand from '@/components/SectionBand'
 import EventCard from '@/components/EventCard'
+import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
 
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: 'Events' }
+}
+
 export default async function EventsPage() {
   const events = await prisma.event.findMany({
-    where: { organizationId: process.env.ORGANIZATION_ID },
+    where: { organizationId: ORG_ID },
     orderBy: { eventDate: 'desc' },
   })
 
@@ -33,6 +39,14 @@ export default async function EventsPage() {
         </p>
       </SectionBand>
 
+      {events.length === 0 && (
+        <SectionBand tone="paper" style={{ paddingTop: '2rem', paddingBottom: '5rem' }}>
+          <p style={{ fontSize: '1.1rem', color: 'var(--color-ink)', opacity: 0.5 }}>
+            No events yet — check back soon.
+          </p>
+        </SectionBand>
+      )}
+
       {/* Upcoming */}
       {upcoming.length > 0 && (
         <SectionBand tone="tint" parallax style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
@@ -42,7 +56,7 @@ export default async function EventsPage() {
               fontSize: 'clamp(1.5rem, 3vw, 2rem)',
               fontWeight: 700,
               color: 'var(--color-ink)',
-              marginBottom: '2.5rem',
+              marginBottom: '2rem',
             }}
           >
             Upcoming
@@ -54,8 +68,8 @@ export default async function EventsPage() {
               gap: '1.5rem',
             }}
           >
-            {upcoming.map(event => (
-              <EventCard key={event.id} event={event} showShadow />
+            {upcoming.map(e => (
+              <EventCard key={e.id} event={e} />
             ))}
           </div>
         </SectionBand>
@@ -70,7 +84,7 @@ export default async function EventsPage() {
               fontSize: 'clamp(1.5rem, 3vw, 2rem)',
               fontWeight: 700,
               color: 'var(--color-ink)',
-              marginBottom: '2.5rem',
+              marginBottom: '2rem',
             }}
           >
             Past events
@@ -82,8 +96,8 @@ export default async function EventsPage() {
               gap: '1.5rem',
             }}
           >
-            {past.map(event => (
-              <EventCard key={event.id} event={event} showShadow={false} />
+            {past.map(e => (
+              <EventCard key={e.id} event={e} />
             ))}
           </div>
         </SectionBand>

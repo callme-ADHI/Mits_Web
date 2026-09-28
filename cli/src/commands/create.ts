@@ -4,6 +4,8 @@ import { ensureDatabaseConnection, prisma } from '../lib/db'
 import { createOrganizationRecord } from '../lib/createOrganization'
 import { scaffoldProject } from '../lib/scaffold'
 
+const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/
+
 export async function createCommand(type: string, name: string) {
   if (type !== 'club' && type !== 'department') {
     console.error(`✗ Invalid type "${type}". Must be "club" or "department".`)
@@ -54,10 +56,22 @@ export async function createCommand(type: string, name: string) {
     }
 
     const pColorInput = await ask('Primary color (hex) [#E10600]: ')
-    if (pColorInput) primaryColor = pColorInput
+    if (pColorInput) {
+      if (HEX_COLOR_RE.test(pColorInput)) {
+        primaryColor = pColorInput
+      } else {
+        console.log(`  Invalid hex format "${pColorInput}". Falling back to default #E10600.`)
+      }
+    }
 
     const sColorInput = await ask('Secondary color (hex) [#141414]: ')
-    if (sColorInput) secondaryColor = sColorInput
+    if (sColorInput) {
+      if (HEX_COLOR_RE.test(sColorInput)) {
+        secondaryColor = sColorInput
+      } else {
+        console.log(`  Invalid hex format "${sColorInput}". Falling back to default #141414.`)
+      }
+    }
   } finally {
     rl.close()
   }
@@ -86,7 +100,7 @@ export async function createCommand(type: string, name: string) {
 ✓ ${name} created at ./${slug}
 
   Admin login:
-    email:    ${adminEmail}
+    email:    ${adminEmail.trim().toLowerCase()}
     password: ${tempPassword}   (save this now — it will not be shown again)
 
   Next steps:

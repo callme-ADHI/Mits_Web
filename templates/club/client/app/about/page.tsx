@@ -1,12 +1,39 @@
 import { prisma } from '@/lib/prisma'
+import { ORG_ID } from '@/lib/env'
 import SectionBand from '@/components/SectionBand'
+import { JourneyTimeline, type TimelineEntry } from '@/components/JourneyTimeline'
+import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
 
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: 'About' }
+}
+
 export default async function AboutPage() {
-  const org = await prisma.organization.findUnique({
-    where: { id: process.env.ORGANIZATION_ID },
-  })
+  const [org, achievements, pastEvents] = await Promise.all([
+    prisma.organization.findUnique({ where: { id: ORG_ID } }),
+    prisma.achievement.findMany({ where: { organizationId: ORG_ID } }),
+    prisma.event.findMany({ where: { organizationId: ORG_ID, status: 'past' } }),
+  ])
+
+  // Merge and sort real entries descending
+  const timelineEntries: TimelineEntry[] = [
+    ...achievements.map(a => ({
+      id: a.id,
+      title: a.title,
+      date: a.achievementDate,
+      type: 'achievement' as const,
+      description: a.description,
+    })),
+    ...pastEvents.map(e => ({
+      id: e.id,
+      title: e.title,
+      date: e.eventDate,
+      type: 'event' as const,
+      description: e.description,
+    })),
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
   return (
     <main>
@@ -21,7 +48,7 @@ export default async function AboutPage() {
             marginBottom: '0.75rem',
           }}
         >
-          About the club
+          About {org?.name ?? 'the club'}
         </h1>
         <p style={{ fontSize: '1.1rem', maxWidth: '55ch' }}>
           Who we are, what we build, and how we started.
@@ -52,8 +79,7 @@ export default async function AboutPage() {
               Who we are
             </h2>
             <p style={{ fontSize: '1rem', lineHeight: 1.75, marginBottom: '1.5rem' }}>
-              {org?.description ??
-                'The premier competitive and research robotics organization at Muthoot Institute of Technology and Science.'}
+              {org?.description ?? 'No description has been added yet.'}
             </p>
 
             <h2
@@ -66,51 +92,12 @@ export default async function AboutPage() {
                 marginTop: '2rem',
               }}
             >
-              How we started
+              Our Mission
             </h2>
-            <p style={{ fontSize: '1rem', lineHeight: 1.75, marginBottom: '1rem' }}>
-              The club was started in 2019 by a group of six students who wanted a structured space to build things
-              beyond the classroom curriculum. The first meeting was held in a borrowed lab with four Arduinos and a
-              single stepper motor. Today we have a dedicated 1,200 sq. ft. workshop with CNC tooling, a 3D printer,
-              and a full suite of oscilloscopes and logic analysers.
-            </p>
             <p style={{ fontSize: '1rem', lineHeight: 1.75 }}>
-              We operate year-round with weekly working sessions on Saturdays and monthly competitive events. Our
-              members have gone on to work at companies like Bosch, DRDO, and several robotics startups — and a
-              few have started their own.
+              To give every student — regardless of their year or branch — access to real opportunities,
+              hands-on collaboration, and mentorship.
             </p>
-
-            <div
-              style={{
-                marginTop: '2rem',
-                padding: '1.5rem',
-                borderLeft: '3px solid var(--color-red)',
-                background: 'rgba(225,6,0,0.04)',
-                borderRadius: '0 4px 4px 0',
-              }}
-            >
-              <p
-                style={{
-                  fontSize: '1rem',
-                  fontStyle: 'italic',
-                  color: 'var(--color-ink)',
-                  lineHeight: 1.6,
-                }}
-              >
-                &ldquo;Our goal isn&apos;t just to win competitions — it&apos;s to produce engineers who can identify a real problem
-                and build something that solves it.&rdquo;
-              </p>
-              <p
-                style={{
-                  fontSize: '0.85rem',
-                  marginTop: '0.75rem',
-                  color: 'var(--color-slate)',
-                  maxWidth: 'none',
-                }}
-              >
-                — Prof. A. Sharma, Faculty Coordinator
-              </p>
-            </div>
           </div>
 
           {/* Image column */}
@@ -123,34 +110,19 @@ export default async function AboutPage() {
           >
             <img
               src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=85"
-              alt="Robotics Club workshop with students assembling circuit boards and robot frames"
+              alt="Club workshop with students working together"
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             />
           </div>
         </div>
       </SectionBand>
 
-      {/* Mission band */}
-      <SectionBand tone="tint" parallax style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
-        <div style={{ maxWidth: '680px' }}>
-          <h2
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(1.5rem, 3vw, 2rem)',
-              fontWeight: 700,
-              color: 'var(--color-ink)',
-              marginBottom: '1rem',
-            }}
-          >
-            Our mission
-          </h2>
-          <p style={{ fontSize: '1.05rem', lineHeight: 1.75 }}>
-            To give every engineering student — regardless of their year, branch, or prior experience — access to
-            real hardware, real problems, and real mentorship. We believe the best learning happens when you&apos;re
-            staring at something that doesn&apos;t work and you have to figure out why.
-          </p>
-        </div>
-      </SectionBand>
+      {/* Timeline Section */}
+      {timelineEntries.length > 0 && (
+        <SectionBand tone="tint" parallax style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
+          <JourneyTimeline entries={timelineEntries} />
+        </SectionBand>
+      )}
     </main>
   )
 }

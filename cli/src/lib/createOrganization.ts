@@ -26,7 +26,7 @@ export async function createOrganizationRecord(opts: {
   await prisma.user.create({
     data: {
       name: `${opts.name} Admin`,
-      email: opts.adminEmail,
+      email: opts.adminEmail.trim().toLowerCase(),
       passwordHash,
       organizationId: org.id,
     },
