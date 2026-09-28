@@ -11,6 +11,7 @@ const navItems = [
   { href: '/messages', label: 'Messages' },
   { href: '/about-contact', label: 'About & Contact' },
   { href: '/branding', label: 'Branding' },
+  { href: '/settings', label: 'Settings' },
 ]
 
 export default function AdminNav({ orgName = 'Club' }: { orgName?: string }) {
