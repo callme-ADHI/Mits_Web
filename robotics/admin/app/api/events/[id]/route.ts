@@ -1,43 +1,54 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { logActivity } from '@/lib/activityLog'
-import { getSessionUserId } from '@/lib/auth'
-
-const ORG_ID = process.env.ORGANIZATION_ID!
+import { requireSession } from '@/lib/session'
+import { ORG_ID } from '@/lib/env'
+import { readJson, validationError, unauthorized, handleDbError } from '@/lib/http'
+import { eventUpdateSchema } from '@/lib/validation'
 
 export async function PUT(
   req: Request,
-  props: { params: Promise<{ id: string }> | { id: string } }
+  ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await Promise.resolve(props.params)
-  const userId = await getSessionUserId()
-  const body = await req.json()
+  const session = await requireSession()
+  if (!session) return unauthorized()
 
-  const dataToUpdate: Record<string, unknown> = { ...body }
-  if (body.eventDate) {
-    dataToUpdate.eventDate = new Date(body.eventDate)
+  const { id } = await ctx.params
+
+  const body = await readJson(req)
+  if (!body.ok) return body.response
+
+  const parsed = eventUpdateSchema.safeParse(body.data)
+  if (!parsed.success) return validationError(parsed.error)
+
+  try {
+    const updated = await prisma.event.update({
+      where: { id, organizationId: ORG_ID }, // ownership enforced in query
+      data: parsed.data,
+    })
+    await logActivity(ORG_ID, session.userId, 'event.updated', updated.title)
+    return NextResponse.json(updated)
+  } catch (err) {
+    return handleDbError(err) // P2025 (not this org's row or no such row) → 404
   }
-
-  const event = await prisma.event.update({
-    where: { id },
-    data: dataToUpdate,
-  })
-
-  await logActivity(ORG_ID, userId, 'event.updated', event.title)
-  return NextResponse.json(event)
 }
 
 export async function DELETE(
   _req: Request,
-  props: { params: Promise<{ id: string }> | { id: string } }
+  ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await Promise.resolve(props.params)
-  const userId = await getSessionUserId()
+  const session = await requireSession()
+  if (!session) return unauthorized()
 
-  const event = await prisma.event.delete({
-    where: { id },
-  })
+  const { id } = await ctx.params
 
-  await logActivity(ORG_ID, userId, 'event.deleted', event.title)
-  return new NextResponse(null, { status: 204 })
+  try {
+    const removed = await prisma.event.delete({
+      where: { id, organizationId: ORG_ID },
+    })
+    await logActivity(ORG_ID, session.userId, 'event.deleted', removed.title)
+    return new NextResponse(null, { status: 204 })
+  } catch (err) {
+    return handleDbError(err)
+  }
 }

@@ -1,43 +1,54 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { logActivity } from '@/lib/activityLog'
-import { getSessionUserId } from '@/lib/auth'
-
-const ORG_ID = process.env.ORGANIZATION_ID!
+import { requireSession } from '@/lib/session'
+import { ORG_ID } from '@/lib/env'
+import { readJson, validationError, unauthorized, handleDbError } from '@/lib/http'
+import { achievementUpdateSchema } from '@/lib/validation'
 
 export async function PUT(
   req: Request,
-  props: { params: Promise<{ id: string }> | { id: string } }
+  ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await Promise.resolve(props.params)
-  const userId = await getSessionUserId()
-  const body = await req.json()
+  const session = await requireSession()
+  if (!session) return unauthorized()
 
-  const dataToUpdate: Record<string, unknown> = { ...body }
-  if (body.achievementDate) {
-    dataToUpdate.achievementDate = new Date(body.achievementDate)
+  const { id } = await ctx.params
+
+  const body = await readJson(req)
+  if (!body.ok) return body.response
+
+  const parsed = achievementUpdateSchema.safeParse(body.data)
+  if (!parsed.success) return validationError(parsed.error)
+
+  try {
+    const updated = await prisma.achievement.update({
+      where: { id, organizationId: ORG_ID }, // ownership enforced in query
+      data: parsed.data,
+    })
+    await logActivity(ORG_ID, session.userId, 'achievement.updated', updated.title)
+    return NextResponse.json(updated)
+  } catch (err) {
+    return handleDbError(err) // P2025 → 404
   }
-
-  const achievement = await prisma.achievement.update({
-    where: { id },
-    data: dataToUpdate,
-  })
-
-  await logActivity(ORG_ID, userId, 'achievement.updated', achievement.title)
-  return NextResponse.json(achievement)
 }
 
 export async function DELETE(
   _req: Request,
-  props: { params: Promise<{ id: string }> | { id: string } }
+  ctx: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await Promise.resolve(props.params)
-  const userId = await getSessionUserId()
+  const session = await requireSession()
+  if (!session) return unauthorized()
 
-  const achievement = await prisma.achievement.delete({
-    where: { id },
-  })
+  const { id } = await ctx.params
 
-  await logActivity(ORG_ID, userId, 'achievement.deleted', achievement.title)
-  return new NextResponse(null, { status: 204 })
+  try {
+    const removed = await prisma.achievement.delete({
+      where: { id, organizationId: ORG_ID },
+    })
+    await logActivity(ORG_ID, session.userId, 'achievement.deleted', removed.title)
+    return new NextResponse(null, { status: 204 })
+  } catch (err) {
+    return handleDbError(err)
+  }
 }

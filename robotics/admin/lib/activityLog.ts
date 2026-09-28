@@ -7,6 +7,11 @@ export async function logActivity(
   details?: string
 ) {
   await prisma.activityLog.create({
-    data: { organizationId, userId, action, details },
+    data: {
+      organizationId,
+      userId,
+      action,
+      details: details ? details.slice(0, 200) : null,
+    },
   })
 }
