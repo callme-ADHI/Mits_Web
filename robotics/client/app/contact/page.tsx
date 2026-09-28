@@ -1,12 +1,18 @@
 import { prisma } from '@/lib/prisma'
+import { ORG_ID } from '@/lib/env'
 import SectionBand from '@/components/SectionBand'
 import ContactForm from '@/components/ContactForm'
+import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
 
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: 'Contact' }
+}
+
 export default async function ContactPage() {
   const org = await prisma.organization.findUnique({
-    where: { id: process.env.ORGANIZATION_ID },
+    where: { id: ORG_ID },
   })
 
   return (
@@ -42,33 +48,35 @@ export default async function ContactPage() {
           {/* Form */}
           <ContactForm />
 
-          {/* Contact info */}
+          {/* Contact info — only shown if org has configured an email */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            <div>
-              <p
-                style={{
-                  fontSize: '0.78rem',
-                  fontWeight: 600,
-                  letterSpacing: '0.08em',
-                  color: 'var(--color-slate)',
-                  marginBottom: '0.5rem',
-                  maxWidth: 'none',
-                }}
-              >
-                GENERAL ENQUIRIES
-              </p>
-              <a
-                href={`mailto:${org?.contactEmail ?? 'robotics@mits.ac.in'}`}
-                style={{
-                  fontSize: '1rem',
-                  color: 'var(--color-red)',
-                  textDecoration: 'none',
-                  fontWeight: 500,
-                }}
-              >
-                {org?.contactEmail ?? 'robotics@mits.ac.in'}
-              </a>
-            </div>
+            {org?.contactEmail && (
+              <div>
+                <p
+                  style={{
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.08em',
+                    color: 'var(--color-slate)',
+                    marginBottom: '0.5rem',
+                    maxWidth: 'none',
+                  }}
+                >
+                  GENERAL ENQUIRIES
+                </p>
+                <a
+                  href={`mailto:${org.contactEmail}`}
+                  style={{
+                    fontSize: '1rem',
+                    color: 'var(--color-red)',
+                    textDecoration: 'none',
+                    fontWeight: 500,
+                  }}
+                >
+                  {org.contactEmail}
+                </a>
+              </div>
+            )}
 
             {org?.showFacultyContact && org.facultyContactEmail && (
               <div>

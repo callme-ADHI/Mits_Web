@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
+import { ORG_ID } from '@/lib/env'
 import SectionBand from '@/components/SectionBand'
 import Button from '@/components/Button'
 import StatCounter from '@/components/StatCounter'
@@ -11,11 +12,11 @@ export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
   const org = await prisma.organization.findUnique({
-    where: { id: process.env.ORGANIZATION_ID },
+    where: { id: ORG_ID },
   })
 
   const upcomingEvents = await prisma.event.findMany({
-    where: { organizationId: process.env.ORGANIZATION_ID, status: 'upcoming' },
+    where: { organizationId: ORG_ID, status: 'upcoming' },
     orderBy: { eventDate: 'asc' },
     take: 3,
   })
@@ -23,7 +24,7 @@ export default async function HomePage() {
   const featuredEvent = upcomingEvents[0]
 
   const recentAchievements = await prisma.achievement.findMany({
-    where: { organizationId: process.env.ORGANIZATION_ID },
+    where: { organizationId: ORG_ID },
     orderBy: { achievementDate: 'desc' },
     take: 3,
   })
@@ -39,7 +40,7 @@ export default async function HomePage() {
     <main>
       {/* ── HERO ──────────────────────────────────────────────── */}
       <SectionBand tone="paper" style={{ paddingTop: '6rem', paddingBottom: '6rem' }}>
-        <HomeHero orgName={org?.name ?? 'Robotics Club'} description={org?.description} />
+        <HomeHero orgName={org?.name ?? 'Club Website'} description={org?.description} />
       </SectionBand>
 
       {/* ── STATS ─────────────────────────────────────────────── */}

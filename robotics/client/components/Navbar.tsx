@@ -12,7 +12,7 @@ const links = [
   { href: '/contact', label: 'CONTACT' },
 ]
 
-export default function Navbar({ orgName = 'ROBOTICS CLUB' }: { orgName?: string }) {
+export default function Navbar({ orgName = 'CLUB' }: { orgName?: string }) {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const pathname = usePathname()

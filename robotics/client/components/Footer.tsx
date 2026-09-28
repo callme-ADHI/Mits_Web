@@ -11,11 +11,11 @@ const navLinks = [
 ]
 
 export default function Footer({
-  orgName = 'Robotics Club',
-  contactEmail = 'robotics@mits.ac.in',
+  orgName = 'Club Website',
+  contactEmail = null,
 }: {
   orgName?: string
-  contactEmail?: string
+  contactEmail?: string | null
 }) {
   return (
     <footer
@@ -57,7 +57,7 @@ export default function Footer({
                 maxWidth: '26ch',
               }}
             >
-              Engineering the future, one robot at a time.
+              {orgName}
             </p>
           </div>
 
@@ -96,31 +96,33 @@ export default function Footer({
             </ul>
           </div>
 
-          {/* Contact column */}
-          <div>
-            <p
-              style={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                letterSpacing: '0.08em',
-                color: 'rgba(255,255,255,0.4)',
-                marginBottom: '1rem',
-                maxWidth: 'none',
-              }}
-            >
-              CONTACT
-            </p>
-            <a
-              href={`mailto:${contactEmail}`}
-              style={{
-                fontSize: '0.9rem',
-                color: 'rgba(255,255,255,0.7)',
-                textDecoration: 'none',
-              }}
-            >
-              {contactEmail}
-            </a>
-          </div>
+          {/* Contact column — only shown if the org has a contact email */}
+          {contactEmail && (
+            <div>
+              <p
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.08em',
+                  color: 'rgba(255,255,255,0.4)',
+                  marginBottom: '1rem',
+                  maxWidth: 'none',
+                }}
+              >
+                CONTACT
+              </p>
+              <a
+                href={`mailto:${contactEmail}`}
+                style={{
+                  fontSize: '0.9rem',
+                  color: 'rgba(255,255,255,0.7)',
+                  textDecoration: 'none',
+                }}
+              >
+                {contactEmail}
+              </a>
+            </div>
+          )}
         </div>
 
         <p

@@ -1,11 +1,17 @@
 import { prisma } from '@/lib/prisma'
+import { ORG_ID } from '@/lib/env'
 import SectionBand from '@/components/SectionBand'
+import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
 
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: 'About' }
+}
+
 export default async function AboutPage() {
   const org = await prisma.organization.findUnique({
-    where: { id: process.env.ORGANIZATION_ID },
+    where: { id: ORG_ID },
   })
 
   return (
@@ -52,8 +58,7 @@ export default async function AboutPage() {
               Who we are
             </h2>
             <p style={{ fontSize: '1rem', lineHeight: 1.75, marginBottom: '1.5rem' }}>
-              {org?.description ??
-                'The premier competitive and research robotics organization at Muthoot Institute of Technology and Science.'}
+              {org?.description ?? 'No description has been added yet.'}
             </p>
 
             <h2

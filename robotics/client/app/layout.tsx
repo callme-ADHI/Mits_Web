@@ -1,34 +1,55 @@
 import { prisma } from '@/lib/prisma'
+import { ORG_ID } from '@/lib/env'
+import { safeHex, darken, tintFromPrimary, readableOn } from '@/lib/color'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import FloatingContactButton from '@/components/FloatingContactButton'
+import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
 
+export async function generateMetadata(): Promise<Metadata> {
+  const org = await prisma.organization.findUnique({ where: { id: ORG_ID } })
+  const name = org?.name ?? 'Club Website'
+  return {
+    title: { default: name, template: `%s — ${name}` },
+    description: org?.description ?? `Welcome to ${name}.`,
+  }
+}
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const org = await prisma.organization.findUnique({
-    where: { id: process.env.ORGANIZATION_ID },
-  })
+  const org = await prisma.organization.findUnique({ where: { id: ORG_ID } })
+
+  const primary = safeHex(org?.primaryColor, '#E10600')
+  const ink = safeHex(org?.secondaryColor, '#141414')
+  const primaryDark = darken(primary, 0.15)
+  const tint = tintFromPrimary(primary)
+  const onPrimary = readableOn(primary)
+
+  // Build CSS string from safe, validated color values only — no raw DB strings
+  const cssVars = [
+    `--color-red: ${primary}`,
+    `--color-red-dark: ${primaryDark}`,
+    `--color-ink: ${ink}`,
+    `--color-paper: #FFFFFF`,
+    `--color-tint: ${tint}`,
+    `--color-hairline: #E7E2E1`,
+    `--color-on-red: ${onPrimary}`,
+  ].join('; ')
 
   return (
     <html lang="en">
       <head>
-        <style>{`:root {
-          --color-red: ${org?.primaryColor ?? '#E10600'};
-          --color-red-dark: ${org?.primaryColor ?? '#B00500'};
-          --color-ink: ${org?.secondaryColor ?? '#141414'};
-          --color-paper: #FFFFFF;
-          --color-tint: #FBE3E0;
-          --color-hairline: #E7E2E1;
-        }`}</style>
+        {/* Safe: only validated hex values, never raw DB strings */}
+        <style>{`:root { ${cssVars} }`}</style>
       </head>
       <body>
-        <Navbar orgName={org?.name ?? 'Robotics Club'} />
+        <Navbar orgName={org?.name ?? 'Club Website'} />
         {children}
         <Footer
-          orgName={org?.name ?? 'Robotics Club'}
-          contactEmail={org?.contactEmail ?? 'robotics@mits.ac.in'}
+          orgName={org?.name ?? 'Club Website'}
+          contactEmail={org?.contactEmail ?? null}
         />
         <FloatingContactButton />
       </body>
