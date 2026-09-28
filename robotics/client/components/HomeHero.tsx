@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect } from 'react'
-import Link from 'next/link'
 import { motion, useAnimation } from 'framer-motion'
 import Button from '@/components/Button'
 import { fadeUp, wordReveal, heroLogo, ruleDraw } from '@/lib/animations'

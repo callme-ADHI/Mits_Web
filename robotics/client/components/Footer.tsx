@@ -20,7 +20,6 @@ export default function Footer({
 }) {
   const footerRef = useRef<HTMLElement>(null)
   const [useReveal, setUseReveal] = useState(false)
-  const [footerHeight, setFooterHeight] = useState(0)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -30,7 +29,6 @@ export default function Footer({
     const updateHeight = () => {
       if (!footerRef.current) return
       const h = footerRef.current.offsetHeight
-      setFooterHeight(h)
       // If footer is taller than 70% viewport, disable reveal
       const tooTall = h > window.innerHeight * 0.7
       setUseReveal(isDesktop && !prefersReducedMotion && !tooTall)

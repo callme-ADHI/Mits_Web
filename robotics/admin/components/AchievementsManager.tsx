@@ -144,7 +144,7 @@ export default function AchievementsManager({
             {achievements.length === 0 ? (
               <tr>
                 <td colSpan={3} className="py-8 text-center text-slate-500 italic">
-                  No achievements listed yet. Click "+ Add Achievement" to showcase your wins.
+                  No achievements listed yet. Click &ldquo;+ Add Achievement&rdquo; to showcase your wins.
                 </td>
               </tr>
             ) : (

@@ -9,9 +9,21 @@ interface MagneticButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEleme
   style?: React.CSSProperties
 }
 
-export function MagneticButton({ children, className, style, ...props }: MagneticButtonProps) {
+export function MagneticButton({
+  children,
+  className,
+  style,
+  onMouseMove,
+  onMouseLeave,
+  ...props
+}: MagneticButtonProps) {
   const ref = useRef<HTMLButtonElement>(null)
-  const [canHover, setCanHover] = useState(false)
+  const [canHover, setCanHover] = useState(() => {
+    if (typeof window === 'undefined') return false
+    const hasHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    return hasHover && !prefersReducedMotion
+  })
 
   const springConfig = { damping: 15, stiffness: 150, mass: 0.1 }
   const x = useSpring(0, springConfig)
@@ -19,12 +31,23 @@ export function MagneticButton({ children, className, style, ...props }: Magneti
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const hasHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    setCanHover(hasHover && !prefersReducedMotion)
+    const mqHover = window.matchMedia('(hover: hover) and (pointer: fine)')
+    const mqMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+    const update = () => {
+      setCanHover(mqHover.matches && !mqMotion.matches)
+    }
+
+    mqHover.addEventListener('change', update)
+    mqMotion.addEventListener('change', update)
+    return () => {
+      mqHover.removeEventListener('change', update)
+      mqMotion.removeEventListener('change', update)
+    }
   }, [])
 
   const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    onMouseMove?.(e)
     if (!canHover || !ref.current) return
     const rect = ref.current.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
@@ -36,21 +59,26 @@ export function MagneticButton({ children, className, style, ...props }: Magneti
     y.set(distanceY)
   }
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
+    onMouseLeave?.(e)
     x.set(0)
     y.set(0)
   }
 
   return (
-    <motion.button
-      ref={ref}
-      style={{ x, y, ...style }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className={className}
-      {...(props as any)}
+    <motion.div
+      style={{ display: 'inline-block', x, y }}
     >
-      {children}
-    </motion.button>
+      <button
+        ref={ref}
+        style={style}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className={className}
+        {...props}
+      >
+        {children}
+      </button>
+    </motion.div>
   )
 }

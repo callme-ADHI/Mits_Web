@@ -1,14 +1,16 @@
 {
   "name": "mits",
   "version": "1.0.0",
-  "description": "MITS Web — CLI for generating and managing club/department websites",
+  "description": "MITS Web \u2014 CLI for generating and managing club/department websites",
   "bin": {
     "mits": "./bin/mits.js"
   },
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "dev": "ts-node src/index.ts"
+    "dev": "ts-node src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "NODE_PATH=../superadmin/node_modules ../superadmin/node_modules/.bin/eslint src"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 
 export default async function OrgDetailPage({
   params,
@@ -19,7 +20,7 @@ export default async function OrgDetailPage({
 
   return (
     <main className="p-8">
-      <a href="/" className="text-sm text-slate hover:underline">← Back to all organizations</a>
+      <Link href="/" className="text-sm text-slate hover:underline">← Back to all organizations</Link>
       <h1 className="text-2xl font-bold mt-2 mb-1 text-slate-900">{org.name}</h1>
       <p className="text-slate mb-6">{org.description}</p>
 

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { logActivity } from '@/lib/activityLog'
 import { requireSession } from '@/lib/session'
 import { ORG_ID } from '@/lib/env'
-import { readJson, unauthorized, handleDbError, notFound } from '@/lib/http'
+import { readJson, unauthorized, handleDbError } from '@/lib/http'
 
 export async function PATCH(
   req: Request,

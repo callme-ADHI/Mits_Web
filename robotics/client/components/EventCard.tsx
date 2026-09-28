@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { fadeUp, imageReveal } from '@/lib/animations'
+import { fadeUp } from '@/lib/animations'
 import { KenBurnsImage } from '@/components/KenBurnsImage'
 
 export interface EventData {

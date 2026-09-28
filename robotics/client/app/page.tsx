@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { ORG_ID } from '@/lib/env'
 import SectionBand from '@/components/SectionBand'
@@ -86,7 +85,7 @@ export default async function HomePage() {
               maxWidth: 'none',
             }}
           >
-            WHAT'S NEXT
+            WHAT&apos;S NEXT
           </p>
           <h2
             style={{
@@ -159,7 +158,7 @@ export default async function HomePage() {
             Want to join or collaborate?
           </h2>
           <p style={{ fontSize: '1rem', marginBottom: '2rem', maxWidth: 'none' }}>
-            Whether you're a student who wants to build robots or an organisation with a project idea, we'd love to hear from you.
+            Whether you&apos;re a student who wants to build robots or an organisation with a project idea, we&apos;d love to hear from you.
           </p>
           <Button variant="primary" as="a" href="/contact">
             Get in touch

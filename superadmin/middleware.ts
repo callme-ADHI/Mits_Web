@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // Edge-compatible JWT verification using the standard Web Crypto API
-async function verifyJwt(token: string, secret: string): Promise<boolean> {
+async function verifyJwt(token: string, secret: string | undefined): Promise<boolean> {
+  if (!secret || secret.length < 32) return false
   try {
     const parts = token.split('.')
     if (parts.length !== 3) return false
@@ -36,9 +37,11 @@ async function verifyJwt(token: string, secret: string): Promise<boolean> {
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get('mits_superadmin_session')?.value
+  const secret = process.env.JWT_SECRET
+
   if (!token) return NextResponse.redirect(new URL('/login', req.url))
 
-  const valid = await verifyJwt(token, process.env.JWT_SECRET!)
+  const valid = await verifyJwt(token, secret)
   if (!valid) return NextResponse.redirect(new URL('/login', req.url))
 
   return NextResponse.next()

@@ -146,7 +146,7 @@ export default function EventsManager({ initialEvents }: { initialEvents: EventI
             {events.length === 0 ? (
               <tr>
                 <td colSpan={4} className="py-8 text-center text-slate-500 italic">
-                  No events found. Click "+ Add Event" to create one.
+                  No events found. Click &ldquo;+ Add Event&rdquo; to create one.
                 </td>
               </tr>
             ) : (
