@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import Header from '@/components/Header'
+import { ThemeProvider } from '@/components/ThemeProvider'
+import { SmoothScroll } from '@/components/SmoothScroll'
+import { AppShell } from '@/components/AppShell'
 
 export const metadata: Metadata = {
   title: 'MITS Central Administration — Super Admin Portal',
@@ -13,14 +15,28 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-slate-50/60 text-slate-900 antialiased selection:bg-red-500 selection:text-white">
-        {/* Institutional top crimson brand line */}
-        <div className="h-1 bg-gradient-to-r from-[#990000] via-[#E10600] to-[#FF4D4D] w-full sticky top-0 z-50" />
-        <Header />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {children}
-        </div>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function() {
+              try {
+                var t = localStorage.getItem('mits_superadmin_theme');
+                if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                  document.documentElement.setAttribute('data-theme', 'light');
+                }
+              } catch(e) {}
+            })()`,
+          }}
+        />
+      </head>
+      <body className="min-h-screen bg-[var(--bg)] text-[var(--ink)] antialiased selection:bg-[var(--red)] selection:text-white">
+        <ThemeProvider>
+          <SmoothScroll />
+          <AppShell>{children}</AppShell>
+        </ThemeProvider>
       </body>
     </html>
   )

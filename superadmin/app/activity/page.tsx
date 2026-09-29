@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { describeAction } from '@/lib/formatActivity'
-import ActivityTimeline, { type LogItem } from '@/components/ActivityTimeline'
+import { ActivityTimeline, type LogItem } from '@/components/ActivityTimeline'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,7 +17,7 @@ export default async function ActivityPage() {
     orgSlug: log.organization.slug,
     orgType: log.organization.type,
     orgColor: log.organization.primaryColor,
-    userName: log.user?.name ?? 'Administrator',
+    userName: log.user?.name ?? 'System Administrator',
     action: log.action,
     description: describeAction(log.action, log.details),
     date: log.createdAt.toLocaleDateString('en-IN', {
@@ -31,29 +31,29 @@ export default async function ActivityPage() {
   }))
 
   return (
-    <main className="space-y-8 pb-16">
-      {/* Header */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-8 pb-16">
+      {/* Header Banner */}
+      <div className="p-6 sm:p-8 rounded-2xl border border-[var(--border)] bg-[var(--surface)] flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-red-50 text-[#E10600] border border-red-100 mb-2">
-            <span>⚡</span> Real-time Audit Log
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-[var(--bg)] border border-[var(--border)] rounded-md text-[11px] font-semibold tracking-wide uppercase text-[var(--red)] mb-3">
+            <span>⚡</span> Central Audit Log &bull; Live Stream
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[var(--ink)] leading-tight">
             Campus Activity Stream
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-            Live chronological record of all announcements, events, and student awards published across MITS portals.
+          <p className="text-xs sm:text-sm text-[var(--muted)] font-normal mt-2 leading-relaxed">
+            Live chronological record of all announcements, published events, awards, and branding changes across all college portals.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 self-start md:self-auto">
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--bg)] border border-[var(--border)] rounded-lg text-xs font-semibold text-[var(--ink)] self-start md:self-auto shrink-0">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>{logs.length} Total Platform Actions</span>
+          <span className="tabular-nums">{logs.length} Recorded Actions</span>
         </div>
       </div>
 
-      {/* Interactive Timeline */}
+      {/* Activity Timeline List */}
       <ActivityTimeline logs={serializedLogs} />
-    </main>
+    </div>
   )
 }

@@ -1,49 +1,89 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-red: #E10600;
-  --color-brand-crimson: #990000;
-  --color-brand-dark: #1E0000;
-  --color-brand-tint: #FEF2F2;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-red: var(--red);
+  --color-red-tint: var(--red-tint);
 }
 
 :root {
-  --background: #F8FAFC;
-  --foreground: #0F172A;
-  --card-bg: #FFFFFF;
-  --mits-red: #E10600;
+  --bg: #FFFFFF;
+  --surface: #FAFAFA;
+  --border: #E7E2E1;
+  --ink: #141414;
+  --muted: #6B6560;
+  --red: #E10600;
+  --red-tint: #FBE3E0;
+}
+
+[data-theme="dark"] {
+  --bg: #0B0B0C;
+  --surface: #151517;
+  --border: #26262A;
+  --ink: #F2F1EF;
+  --muted: #9C9792;
+  --red: #FF3B30;
+  --red-tint: #3A1210;
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg);
+  color: var(--ink);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom crisp card and badge utilities */
-.card-hover {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(225, 6, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
-/* Custom scrollbar */
+/* Hairline border utility */
+.border-hairline {
+  border-color: var(--border);
+}
+
+/* Micro-interaction: button press scale-down */
+.btn-press {
+  transition: transform 100ms ease, background-color 150ms ease, border-color 150ms ease;
+}
+.btn-press:active {
+  transform: scale(0.98);
+}
+
+/* Fast 120ms row hover tint */
+.row-hover {
+  transition: background-color 120ms ease;
+}
+.row-hover:hover {
+  background-color: var(--surface);
+}
+
+/* Accessible focus outline */
+:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+
+/* Custom restrained scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 4px;
+  background: var(--border);
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #E10600;
+  background: var(--muted);
 }
