@@ -6,10 +6,11 @@ import { spawn } from 'child_process'
 
 function runNpmInstall(cwd: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const child = spawn('npm', ['install'], {
+    const registry = process.env.MITS_NPM_REGISTRY || process.env.npm_config_registry || 'https://registry.yarnpkg.com/'
+    const child = spawn('npm', ['install', `--registry=${registry}`], {
       cwd,
       stdio: 'inherit',
-      env: process.env,
+      env: { ...process.env, npm_config_registry: registry },
     })
     child.on('error', reject)
     child.on('close', (code) => {
